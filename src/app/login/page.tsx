@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import Logo from '@/components/Logo';
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  emailOrPhone: z.string().min(1, { message: 'Email or Phone is required' }),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
@@ -25,17 +25,18 @@ export default function LoginPage() {
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '' },
+    defaultValues: { emailOrPhone: '', password: '' },
   });
 
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     try {
-      await signInWithEmailAndPassword(auth, data.email, data.password);
+      // For now, we assume email is provided. Phone number logic would require a different Firebase auth flow.
+      await signInWithEmailAndPassword(auth, data.emailOrPhone, data.password);
       router.push('/account');
     } catch (error: any) {
       toast({
         title: 'Login Failed',
-        description: error.message,
+        description: 'Please check your credentials. If you are using a phone number, ensure it is linked to an account with a password.',
         variant: 'destructive',
       });
     }
@@ -52,8 +53,8 @@ export default function LoginPage() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField control={form.control} name="email" render={({ field }) => (
-                <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="you@example.com" {...field} /></FormControl><FormMessage /></FormItem>
+              <FormField control={form.control} name="emailOrPhone" render={({ field }) => (
+                <FormItem><FormLabel>Email or Phone Number</FormLabel><FormControl><Input placeholder="you@example.com or phone number" {...field} /></FormControl><FormMessage /></FormItem>
               )} />
               <FormField control={form.control} name="password" render={({ field }) => (
                 <FormItem><FormLabel>Password</FormLabel><FormControl><Input type="password" placeholder="••••••••" {...field} /></FormControl><FormMessage /></FormItem>
