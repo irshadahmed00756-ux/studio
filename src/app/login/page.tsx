@@ -50,9 +50,15 @@ export default function LoginPage() {
       }
     } catch (error: any) {
       console.error('Login failed', error);
+      let description = 'An unexpected error occurred. Please try again.';
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        description = 'Invalid email or password. Please try again or sign up.';
+      } else if (error.message) {
+        description = error.message;
+      }
       toast({
         title: 'Login Failed',
-        description: error.message || 'Invalid credentials. Please try again.',
+        description: description,
         variant: 'destructive',
       });
     } finally {
