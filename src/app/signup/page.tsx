@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
+import { signInWithPhoneNumber, ConfirmationResult, RecaptchaVerifier } from 'firebase/auth';
 import { useAuth } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,6 +31,7 @@ export default function SignupPage() {
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const otpInputRef = useRef<HTMLInputElement>(null);
+  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
 
   const phoneForm = useForm<z.infer<typeof phoneSchema>>({
     resolver: zodResolver(phoneSchema),
@@ -43,11 +44,9 @@ export default function SignupPage() {
   });
   
   useEffect(() => {
-    if (isOtpSent) {
+    if (isOtpSent && otpInputRef.current) {
+      otpInputRef.current.value = '';
       otpForm.reset({ otp: '' });
-      if (otpInputRef.current) {
-        otpInputRef.current.value = '';
-      }
     }
   }, [isOtpSent, otpForm]);
   
@@ -55,8 +54,11 @@ export default function SignupPage() {
     setLoading(true);
     otpForm.resetField('otp');
     try {
+      const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+      });
       const phoneNumber = data.phone.startsWith('+') ? data.phone : `+${data.phone}`;
-      const result = await signInWithPhoneNumber(auth, phoneNumber);
+      const result = await signInWithPhoneNumber(auth, phoneNumber, verifier);
       setConfirmationResult(result);
       setIsOtpSent(true);
       toast({
@@ -100,7 +102,7 @@ export default function SignupPage() {
 
   return (
     <>
-      <div id="recaptcha-container" style={{ display: 'none' }}></div>
+      <div id="recaptcha-container" ref={recaptchaContainerRef}></div>
       <div className="container mx-auto flex min-h-[80vh] items-center justify-center px-4 py-8">
         <Card className="w-full max-w-sm">
           <CardHeader className="text-center">
