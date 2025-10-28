@@ -77,7 +77,7 @@ export default function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-[300px] sm:w-[400px]">
-              <SheetTitle className="sr-only">Menu</SheetTitle>
+              <SheetTitle>Menu</SheetTitle>
               <nav className="flex flex-col gap-4">
                 <Logo />
                 <MobileNav links={navLinks} />
@@ -114,6 +114,13 @@ export default function Header() {
             </form>
           </div>
           
+          <Button asChild variant="ghost" size="icon">
+            <Link href="/wishlist">
+              <Heart className="h-5 w-5" />
+              <span className="sr-only">Wishlist</span>
+            </Link>
+          </Button>
+
           <Button asChild variant="ghost" size="icon">
             <Link href="/cart">
               <ShoppingCart className="h-5 w-5" />
