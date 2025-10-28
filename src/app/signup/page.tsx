@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
@@ -30,6 +30,7 @@ export default function SignupPage() {
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const otpInputRef = useRef<HTMLInputElement>(null);
 
   const phoneForm = useForm<z.infer<typeof phoneSchema>>({
     resolver: zodResolver(phoneSchema),
@@ -44,6 +45,9 @@ export default function SignupPage() {
   useEffect(() => {
     if (isOtpSent) {
       otpForm.reset({ otp: '' });
+      if (otpInputRef.current) {
+        otpInputRef.current.value = '';
+      }
     }
   }, [isOtpSent, otpForm]);
 
@@ -127,7 +131,7 @@ export default function SignupPage() {
                     <FormItem>
                       <FormLabel>Phone Number</FormLabel>
                       <FormControl>
-                        <Input placeholder="+1 123 456 7890" {...field} autoComplete="off" />
+                        <Input placeholder="+1 123 456 7890" {...field} autoComplete="tel-national" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -149,12 +153,13 @@ export default function SignupPage() {
                       <FormLabel>One-Time Password</FormLabel>
                       <FormControl>
                         <Input
+                          {...field}
+                          ref={otpInputRef}
                           type="tel"
                           placeholder="123456"
                           maxLength={6}
                           inputMode="numeric"
-                          autoComplete="off"
-                          {...field}
+                          autoComplete="one-time-code"
                         />
                       </FormControl>
                       <FormMessage />
