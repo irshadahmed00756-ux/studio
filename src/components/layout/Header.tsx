@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { ShoppingCart, User as UserIcon, LogOut, Search, Menu, Package } from 'lucide-react';
+import { ShoppingCart, User as UserIcon, LogOut, Search, Menu, Package, Heart } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useCart } from '@/hooks/use-cart';
 import { auth } from '@/lib/firebase';
@@ -141,6 +141,12 @@ export default function Header() {
                       <Link href="/account">
                         <UserIcon className="mr-2 h-4 w-4" />
                         <span>My Account</span>
+                      </Link>
+                    </DropdownMenuItem>
+                     <DropdownMenuItem asChild>
+                      <Link href="/wishlist">
+                        <Heart className="mr-2 h-4 w-4" />
+                        <span>My Wishlist</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>

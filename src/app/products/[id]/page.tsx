@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import { notFound } from 'next/navigation';
-import { Plus, CheckCircle } from 'lucide-react';
+import { notFound, useRouter } from 'next/navigation';
+import { Plus, CheckCircle, Heart } from 'lucide-react';
 import { getProductById } from '@/lib/products';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
@@ -12,20 +12,35 @@ import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
 import { useProductHistory } from '@/hooks/use-product-history';
 import ProductRecommendations from '@/components/products/ProductRecommendations';
+import { useAuth } from '@/hooks/use-auth';
+import { db } from '@/lib/firebase';
+import { doc, setDoc, serverTimestamp, getDoc, deleteDoc } from 'firebase/firestore';
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
   const product = getProductById(params.id);
   const image = product ? PlaceHolderImages.find((img) => img.id === product.imageId) : undefined;
   
+  const { user } = useAuth();
+  const router = useRouter();
   const { dispatch } = useCart();
   const { toast } = useToast();
   const { addProductToHistory } = useProductHistory();
+
+  const [isInWishlist, setIsInWishlist] = useState(false);
 
   useEffect(() => {
     if (product) {
       addProductToHistory(product.name);
     }
-  }, [product, addProductToHistory]);
+    if (user && product) {
+      const checkWishlist = async () => {
+        const wishlistRef = doc(db, 'users', user.uid, 'wishlist', product.id);
+        const docSnap = await getDoc(wishlistRef);
+        setIsInWishlist(docSnap.exists());
+      };
+      checkWishlist();
+    }
+  }, [product, addProductToHistory, user]);
 
   if (!product || !image) {
     notFound();
@@ -37,6 +52,48 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
       title: 'Added to cart',
       description: `${product.name} has been added to your cart.`,
     });
+  };
+
+  const handleWishlistToggle = async () => {
+    if (!user) {
+      toast({
+        title: 'Please log in',
+        description: 'You need to be logged in to manage your wishlist.',
+        variant: 'destructive',
+        action: <Button onClick={() => router.push('/login')}>Login</Button>
+      });
+      return;
+    }
+
+    const wishlistRef = doc(db, 'users', user.uid, 'wishlist', product.id);
+
+    try {
+      if (isInWishlist) {
+        await deleteDoc(wishlistRef);
+        toast({
+          title: 'Removed from Wishlist',
+          description: `${product.name} has been removed from your wishlist.`,
+        });
+        setIsInWishlist(false);
+      } else {
+        await setDoc(wishlistRef, {
+          productId: product.id,
+          addedAt: serverTimestamp(),
+        });
+        toast({
+          title: 'Added to Wishlist',
+          description: `${product.name} has been added to your wishlist.`,
+        });
+        setIsInWishlist(true);
+      }
+    } catch (error) {
+      console.error("Error toggling wishlist:", error);
+      toast({
+        title: 'Something went wrong',
+        description: 'Could not update your wishlist. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
@@ -76,10 +133,14 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             </div>
           )}
           
-          <div className="mt-8">
+          <div className="mt-8 flex items-center gap-4">
             <Button size="lg" onClick={handleAddToCart}>
               <Plus className="mr-2 h-5 w-5" />
               Add to Cart
+            </Button>
+            <Button size="lg" variant="outline" onClick={handleWishlistToggle}>
+              <Heart className={cn("mr-2 h-5 w-5", isInWishlist && "fill-current text-red-500")} />
+              {isInWishlist ? 'In Wishlist' : 'Add to Wishlist'}
             </Button>
           </div>
           
