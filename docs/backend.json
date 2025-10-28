@@ -1,64 +1,574 @@
 {
   "entities": {
-    "userProfile": {
-      "title": "User Profile",
-      "description": "Represents a user's profile information.",
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
       "type": "object",
+      "description": "Represents a user of the Aesthetic Nasra platform.",
       "properties": {
-        "name": {
+        "id": {
           "type": "string",
-          "description": "The user's full name."
+          "description": "Unique identifier for the User entity."
         },
-        "dob": {
+        "firstName": {
           "type": "string",
-          "format": "date-time",
-          "description": "The user's date of birth."
+          "description": "The first name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The last name of the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the user.",
+          "format": "email"
+        },
+        "phone": {
+          "type": "string",
+          "description": "The phone number of the user."
         },
         "address": {
           "type": "string",
-          "description": "The user's shipping address."
+          "description": "The address of the user."
         },
-        "gender": {
+        "createdAt": {
           "type": "string",
-          "description": "The user's gender.",
-          "enum": ["male", "female", "other"]
+          "description": "The timestamp when the user was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "The timestamp when the user was last updated.",
+          "format": "date-time"
         }
       },
-      "required": ["name"]
+      "required": [
+        "id",
+        "firstName",
+        "lastName",
+        "email",
+        "createdAt",
+        "updatedAt"
+      ]
     },
-    "wishlistItem": {
-      "title": "Wishlist Item",
-      "description": "Represents an item in a user's wishlist.",
+    "ProductCategory": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ProductCategory",
       "type": "object",
+      "description": "Represents a category of products offered on Aesthetic Nasra.",
       "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ProductCategory entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the product category (e.g., Haldi Platters, Mehndi Platters)."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the product category."
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "Product": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Product",
+      "type": "object",
+      "description": "Represents a product sold on Aesthetic Nasra.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Product entity."
+        },
+        "categoryId": {
+          "type": "string",
+          "description": "Reference to ProductCategory. (Relationship: ProductCategory 1:N Product)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the product."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the product."
+        },
+        "price": {
+          "type": "number",
+          "description": "The price of the product."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL of the product image."
+        },
+        "customizationOptions": {
+          "type": "string",
+          "description": "Description of available customization options."
+        },
+        "vendorId": {
+          "type": "string",
+          "description": "Reference to Vendor. (Relationship: Vendor 1:N Product)"
+        }
+      },
+      "required": [
+        "id",
+        "categoryId",
+        "name",
+        "description",
+        "price",
+        "imageUrl"
+      ]
+    },
+    "ShoppingCart": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ShoppingCart",
+      "type": "object",
+      "description": "Represents the shopping cart of a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ShoppingCart entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:1 ShoppingCart)"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "The timestamp when the cart was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "The timestamp when the cart was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CartItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CartItem",
+      "type": "object",
+      "description": "Represents an item in a shopping cart.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the CartItem entity."
+        },
+        "cartId": {
+          "type": "string",
+          "description": "Reference to ShoppingCart. (Relationship: ShoppingCart 1:N CartItem)"
+        },
         "productId": {
           "type": "string",
-          "description": "The ID of the product."
+          "description": "Reference to Product. (Relationship: Product 1:N CartItem)"
         },
-        "addedAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "The date and time the item was added."
+        "quantity": {
+          "type": "number",
+          "description": "The quantity of the product in the cart."
         }
       },
-      "required": ["productId", "addedAt"]
+      "required": [
+        "id",
+        "cartId",
+        "productId",
+        "quantity"
+      ]
+    },
+    "Order": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Order",
+      "type": "object",
+      "description": "Represents a customer order.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Order entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Order)"
+        },
+        "orderDate": {
+          "type": "string",
+          "description": "The date the order was placed.",
+          "format": "date-time"
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "The total amount of the order."
+        },
+        "shippingAddress": {
+          "type": "string",
+          "description": "The shipping address for the order."
+        },
+        "paymentMethod": {
+          "type": "string",
+          "description": "The payment method used for the order."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the order (e.g., pending, processing, shipped, delivered)."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "orderDate",
+        "totalAmount",
+        "shippingAddress",
+        "paymentMethod",
+        "status"
+      ]
+    },
+    "OrderItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "OrderItem",
+      "type": "object",
+      "description": "Represents an item within an order.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the OrderItem entity."
+        },
+        "orderId": {
+          "type": "string",
+          "description": "Reference to Order. (Relationship: Order 1:N OrderItem)"
+        },
+        "productId": {
+          "type": "string",
+          "description": "Reference to Product. (Relationship: Product 1:N OrderItem)"
+        },
+        "quantity": {
+          "type": "number",
+          "description": "The quantity of the product in the order."
+        },
+        "price": {
+          "type": "number",
+          "description": "The price of the product at the time of the order."
+        }
+      },
+      "required": [
+        "id",
+        "orderId",
+        "productId",
+        "quantity",
+        "price"
+      ]
+    },
+    "Vendor": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Vendor",
+      "type": "object",
+      "description": "Represents a vendor selling products on Aesthetic Nasra.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Vendor entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the vendor."
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the vendor."
+        },
+        "contactEmail": {
+          "type": "string",
+          "description": "The contact email address of the vendor.",
+          "format": "email"
+        },
+        "contactPhone": {
+          "type": "string",
+          "description": "The contact phone number of the vendor."
+        },
+        "address": {
+          "type": "string",
+          "description": "The address of the vendor."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "contactEmail",
+        "contactPhone",
+        "address"
+      ]
+    },
+    "LiveChatSession": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LiveChatSession",
+      "type": "object",
+      "description": "Represents a live chat session between a user and a support agent.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the LiveChatSession entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N LiveChatSession)"
+        },
+        "startTime": {
+          "type": "string",
+          "description": "The timestamp when the chat session started.",
+          "format": "date-time"
+        },
+        "endTime": {
+          "type": "string",
+          "description": "The timestamp when the chat session ended.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "The status of the chat session (e.g., open, closed)."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "startTime",
+        "status"
+      ]
+    },
+    "ChatMessage": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ChatMessage",
+      "type": "object",
+      "description": "Represents a message within a live chat session.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ChatMessage entity."
+        },
+        "sessionId": {
+          "type": "string",
+          "description": "Reference to LiveChatSession. (Relationship: LiveChatSession 1:N ChatMessage)"
+        },
+        "senderId": {
+          "type": "string",
+          "description": "Reference to User.  Identifier of the user sending the message."
+        },
+        "message": {
+          "type": "string",
+          "description": "The content of the chat message."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "The timestamp when the message was sent.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "sessionId",
+        "senderId",
+        "message",
+        "timestamp"
+      ]
     }
   },
   "auth": {
-    "providers": ["phone"]
+    "providers": [
+      "password",
+      "anonymous"
+    ]
   },
   "firestore": {
-    "/users/{userId}": {
-      "schema": {
-        "$ref": "#/entities/userProfile"
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles.  Uses path-based ownership. `userId` corresponds to `request.auth.uid`.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, matching the Firebase Authentication UID."
+            }
+          ]
+        }
       },
-      "description": "Stores user profile information."
-    },
-    "/users/{userId}/wishlist/{wishlistItemId}": {
-      "schema": {
-        "$ref": "#/entities/wishlistItem"
+      {
+        "path": "/product_categories/{productCategoryId}",
+        "definition": {
+          "entityName": "ProductCategory",
+          "schema": {
+            "$ref": "#/backend/entities/ProductCategory"
+          },
+          "description": "Stores product categories such as 'Haldi Platters', 'Mehndi Platters', etc.",
+          "params": [
+            {
+              "name": "productCategoryId",
+              "description": "The unique identifier of the product category."
+            }
+          ]
+        }
       },
-      "description": "Stores a user's wishlist items. The document ID is the product ID."
-    }
+      {
+        "path": "/products/{productId}",
+        "definition": {
+          "entityName": "Product",
+          "schema": {
+            "$ref": "#/backend/entities/Product"
+          },
+          "description": "Stores product information. The `vendorId` field indicates the product's vendor and can be used for filtering and display.",
+          "params": [
+            {
+              "name": "productId",
+              "description": "The unique identifier of the product."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/shopping_cart",
+        "definition": {
+          "entityName": "ShoppingCart",
+          "schema": {
+            "$ref": "#/backend/entities/ShoppingCart"
+          },
+          "description": "Stores the user's shopping cart. Uses path-based ownership. `userId` corresponds to `request.auth.uid`.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, matching the Firebase Authentication UID."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/shopping_cart/cart_items/{cartItemId}",
+        "definition": {
+          "entityName": "CartItem",
+          "schema": {
+            "$ref": "#/backend/entities/CartItem"
+          },
+          "description": "Stores individual items within a user's shopping cart. Uses path-based ownership. `userId` corresponds to `request.auth.uid`.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, matching the Firebase Authentication UID."
+            },
+            {
+              "name": "cartItemId",
+              "description": "The unique identifier of the cart item."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/orders/{orderId}",
+        "definition": {
+          "entityName": "Order",
+          "schema": {
+            "$ref": "#/backend/entities/Order"
+          },
+          "description": "Stores user's order history. Uses path-based ownership. `userId` corresponds to `request.auth.uid`.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, matching the Firebase Authentication UID."
+            },
+            {
+              "name": "orderId",
+              "description": "The unique identifier of the order."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/orders/{orderId}/order_items/{orderItemId}",
+        "definition": {
+          "entityName": "OrderItem",
+          "schema": {
+            "$ref": "#/backend/entities/OrderItem"
+          },
+          "description": "Stores individual items within a user's order. Uses path-based ownership. `userId` corresponds to `request.auth.uid`.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, matching the Firebase Authentication UID."
+            },
+            {
+              "name": "orderId",
+              "description": "The unique identifier of the order."
+            },
+            {
+              "name": "orderItemId",
+              "description": "The unique identifier of the order item."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/vendors/{vendorId}",
+        "definition": {
+          "entityName": "Vendor",
+          "schema": {
+            "$ref": "#/backend/entities/Vendor"
+          },
+          "description": "Stores vendor information.",
+          "params": [
+            {
+              "name": "vendorId",
+              "description": "The unique identifier of the vendor."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/live_chat_sessions/{sessionId}",
+        "definition": {
+          "entityName": "LiveChatSession",
+          "schema": {
+            "$ref": "#/backend/entities/LiveChatSession"
+          },
+          "description": "Stores live chat session information. The `userId` field indicates the user involved in the session. An agent field or subcollection could be added to store agent assignment.",
+          "params": [
+            {
+              "name": "sessionId",
+              "description": "The unique identifier of the live chat session."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/live_chat_sessions/{sessionId}/chat_messages/{messageId}",
+        "definition": {
+          "entityName": "ChatMessage",
+          "schema": {
+            "$ref": "#/backend/entities/ChatMessage"
+          },
+          "description": "Stores individual chat messages within a live chat session.",
+          "params": [
+            {
+              "name": "sessionId",
+              "description": "The unique identifier of the live chat session."
+            },
+            {
+              "name": "messageId",
+              "description": "The unique identifier of the chat message."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to support the multi-vendor e-commerce application 'Aesthetic Nasra,' focusing on handmade wedding-related items. The structure prioritizes security, scalability, and debuggability by adhering to the core design principles of Authorization Independence, Clarity of Intent, DBAC (Database-Based Access Control), and QAPs (Rules are Not Filters). Authorization Independence is achieved through denormalization of access control data (e.g., user IDs for ownership). Structural Segregation ensures that collections have homogeneous security postures.  Access Modeling follows consistent patterns for authorization, primarily path-based ownership and membership maps. Data Clarity and Predictability are maintained through explicit state modeling and predictable schema.  This design facilitates straightforward and robust security rules, crucial for managing user authentication, product catalog, shopping carts, payment gateway, and live chat support features. The paths are structured to allow for easy querying of products by category and vendor, as well as user-specific data such as shopping carts and orders. Live chat sessions and messages are structured to ensure proper access control and data isolation. The use of subcollections for user-owned data promotes scalability and efficient querying."
   }
 }
