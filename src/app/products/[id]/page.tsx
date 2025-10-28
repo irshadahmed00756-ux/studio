@@ -15,6 +15,7 @@ import ProductRecommendations from '@/components/products/ProductRecommendations
 import { useAuth } from '@/hooks/use-auth';
 import { db } from '@/lib/firebase';
 import { doc, setDoc, serverTimestamp, getDoc, deleteDoc } from 'firebase/firestore';
+import { cn } from '@/lib/utils';
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
   const { id } = use(params);
