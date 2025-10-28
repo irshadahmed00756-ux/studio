@@ -23,6 +23,12 @@ const otpSchema = z.object({
   otp: z.string().min(6, { message: 'OTP must be 6 digits.' }),
 });
 
+declare global {
+    interface Window {
+        recaptchaVerifier?: RecaptchaVerifier;
+    }
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const auth = useAuth();
@@ -31,7 +37,6 @@ export default function LoginPage() {
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const otpInputRef = useRef<HTMLInputElement>(null);
-  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
 
   const phoneForm = useForm<z.infer<typeof phoneSchema>>({
     resolver: zodResolver(phoneSchema),
@@ -44,9 +49,19 @@ export default function LoginPage() {
   });
   
   useEffect(() => {
-    if (isOtpSent && otpInputRef.current) {
-        otpInputRef.current.value = '';
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+      });
+    }
+  }, [auth]);
+
+  useEffect(() => {
+    if (isOtpSent) {
         otpForm.reset({ otp: '' });
+        if (otpInputRef.current) {
+            otpInputRef.current.value = '';
+        }
     }
   }, [isOtpSent, otpForm]);
 
@@ -54,9 +69,7 @@ export default function LoginPage() {
     setLoading(true);
     otpForm.resetField('otp');
     try {
-      const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'invisible',
-      });
+      const verifier = window.recaptchaVerifier!;
       const phoneNumber = data.phone.startsWith('+') ? data.phone : `+${data.phone}`;
       const result = await signInWithPhoneNumber(auth, phoneNumber, verifier);
       setConfirmationResult(result);
@@ -101,7 +114,7 @@ export default function LoginPage() {
 
   return (
     <>
-      <div id="recaptcha-container" ref={recaptchaContainerRef}></div>
+      <div id="recaptcha-container"></div>
       <div className="container mx-auto flex min-h-[80vh] items-center justify-center px-4 py-8">
         <Card className="w-full max-w-sm">
           <CardHeader className="text-center">
