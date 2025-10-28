@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
@@ -40,6 +40,12 @@ export default function SignupPage() {
     resolver: zodResolver(otpSchema),
     defaultValues: { otp: '' },
   });
+  
+  useEffect(() => {
+    if (isOtpSent) {
+      otpForm.reset({ otp: '' });
+    }
+  }, [isOtpSent, otpForm]);
 
   const setupRecaptcha = () => {
     if (!(window as any).recaptchaVerifier) {
@@ -147,7 +153,7 @@ export default function SignupPage() {
                           placeholder="123456"
                           maxLength={6}
                           inputMode="numeric"
-                          autoComplete="one-time-code"
+                          autoComplete="off"
                           {...field}
                         />
                       </FormControl>
