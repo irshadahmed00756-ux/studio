@@ -36,20 +36,25 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const [recaptchaVerifier, setRecaptchaVerifier] = useState<RecaptchaVerifier | null>(null);
   
   const recaptchaContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (auth && recaptchaContainerRef.current) {
-        if ((window as any).recaptchaVerifier) {
-            (window as any).recaptchaVerifier.clear();
-        }
+      if (recaptchaVerifier) {
+        recaptchaVerifier.clear();
+      }
       const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
         size: 'invisible',
         callback: (response: any) => {},
         'expired-callback': () => {}
       });
-      (window as any).recaptchaVerifier = verifier;
+      setRecaptchaVerifier(verifier);
+
+      return () => {
+        verifier.clear();
+      };
     }
   }, [auth]);
 
@@ -70,11 +75,18 @@ export default function SignupPage() {
   }, [isOtpSent, otpForm]);
 
   const onSendOtp = async (data: z.infer<typeof signupSchema>) => {
+    if (!recaptchaVerifier) {
+      toast({
+        title: 'reCAPTCHA not ready',
+        description: 'Please wait a moment and try again.',
+        variant: 'destructive',
+      });
+      return;
+    }
     setLoading(true);
     try {
-      const verifier = (window as any).recaptchaVerifier;
       const phoneNumber = data.phone.startsWith('+') ? data.phone : `+${data.phone}`;
-      const result = await signInWithPhoneNumber(auth, phoneNumber, verifier);
+      const result = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
       setConfirmationResult(result);
       setIsOtpSent(true);
       toast({
@@ -106,7 +118,7 @@ export default function SignupPage() {
       });
 
       const userDocRef = doc(firestore, 'users', user.uid);
-      await setDocumentNonBlocking(userDocRef, {
+      setDocumentNonBlocking(userDocRef, {
         name: signupData.name,
         email: signupData.email,
         phone: signupData.phone,

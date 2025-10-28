@@ -32,15 +32,15 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const [recaptchaVerifier, setRecaptchaVerifier] = useState<RecaptchaVerifier | null>(null);
 
   const recaptchaContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (auth && recaptchaContainerRef.current) {
-        // Cleanup previous verifier if it exists
-        if ((window as any).recaptchaVerifier) {
-            (window as any).recaptchaVerifier.clear();
-        }
+      if (recaptchaVerifier) {
+        recaptchaVerifier.clear();
+      }
       const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
         size: 'invisible',
         callback: (response: any) => {
@@ -50,7 +50,11 @@ export default function LoginPage() {
           // Response expired. Ask user to solve reCAPTCHA again.
         }
       });
-      (window as any).recaptchaVerifier = verifier;
+      setRecaptchaVerifier(verifier);
+
+      return () => {
+        verifier.clear();
+      };
     }
   }, [auth]);
 
@@ -71,11 +75,18 @@ export default function LoginPage() {
   }, [isOtpSent, otpForm]);
 
   const onSendOtp = async (data: z.infer<typeof phoneSchema>) => {
+    if (!recaptchaVerifier) {
+      toast({
+        title: 'reCAPTCHA not ready',
+        description: 'Please wait a moment and try again.',
+        variant: 'destructive',
+      });
+      return;
+    }
     setLoading(true);
     try {
-      const verifier = (window as any).recaptchaVerifier;
       const phoneNumber = data.phone.startsWith('+') ? data.phone : `+${data.phone}`;
-      const result = await signInWithPhoneNumber(auth, phoneNumber, verifier);
+      const result = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
       setConfirmationResult(result);
       setIsOtpSent(true);
       toast({
