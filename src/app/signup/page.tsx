@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { useAuth } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -25,6 +25,7 @@ const otpSchema = z.object({
 
 export default function SignupPage() {
   const router = useRouter();
+  const auth = useAuth();
   const { toast } = useToast();
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [isOtpSent, setIsOtpSent] = useState(false);
@@ -41,8 +42,8 @@ export default function SignupPage() {
   });
 
   const setupRecaptcha = () => {
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+    if (!(window as any).recaptchaVerifier) {
+      (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
         size: 'invisible',
         callback: (response: any) => {},
       });
@@ -53,7 +54,7 @@ export default function SignupPage() {
     setLoading(true);
     try {
       setupRecaptcha();
-      const appVerifier = window.recaptchaVerifier;
+      const appVerifier = (window as any).recaptchaVerifier;
       const phoneNumber = data.phone.startsWith('+') ? data.phone : `+${data.phone}`;
       const result = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
       setConfirmationResult(result);
@@ -143,8 +144,7 @@ export default function SignupPage() {
                 />
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? 'Verifying...' : 'Create Account'}
-                </Button>
-                 <Button variant="link" size="sm" onClick={() => setIsOtpSent(false)} className="w-full">
+                </Button>                 <Button variant="link" size="sm" onClick={() => setIsOtpSent(false)} className="w-full">
                     Use a different number
                   </Button>
               </form>

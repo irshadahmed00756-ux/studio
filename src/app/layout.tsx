@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { AuthProvider } from '@/contexts/AuthContext';
 import { CartProvider } from '@/contexts/CartContext';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -8,6 +7,7 @@ import LiveChatWidget from '@/components/LiveChatWidget';
 import './globals.css';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/react';
+import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
   title: 'Aesthetic Nasra',
@@ -27,7 +27,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400..900;1,400..900&family=Belleza&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        <AuthProvider>
+        <FirebaseClientProvider>
           <CartProvider>
             <div className="flex min-h-screen flex-col">
               <Header />
@@ -37,7 +37,7 @@ export default function RootLayout({
             <LiveChatWidget />
             <Toaster />
           </CartProvider>
-        </AuthProvider>
+        </FirebaseClientProvider>
         <SpeedInsights />
         <Analytics />
       </body>

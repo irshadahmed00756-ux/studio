@@ -12,9 +12,8 @@ import { useCart } from '@/hooks/use-cart';
 import { useToast } from '@/hooks/use-toast';
 import { useProductHistory } from '@/hooks/use-product-history';
 import ProductRecommendations from '@/components/products/ProductRecommendations';
-import { useAuth } from '@/hooks/use-auth';
-import { db } from '@/lib/firebase';
-import { doc, setDoc, serverTimestamp, getDoc, deleteDoc } from 'firebase/firestore';
+import { useUser, useFirestore, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
+import { doc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { cn } from '@/lib/utils';
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
@@ -22,7 +21,8 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   const product = getProductById(id);
   const image = product ? PlaceHolderImages.find((img) => img.id === product.imageId) : undefined;
   
-  const { user } = useAuth();
+  const { user } = useUser();
+  const firestore = useFirestore();
   const router = useRouter();
   const { dispatch } = useCart();
   const { toast } = useToast();
@@ -34,15 +34,15 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     if (product) {
       addProductToHistory(product.name);
     }
-    if (user && product) {
+    if (user && product && firestore) {
       const checkWishlist = async () => {
-        const wishlistRef = doc(db, 'users', user.uid, 'wishlist', product.id);
+        const wishlistRef = doc(firestore, 'users', user.uid, 'wishlist', product.id);
         const docSnap = await getDoc(wishlistRef);
         setIsInWishlist(docSnap.exists());
       };
       checkWishlist();
     }
-  }, [product, addProductToHistory, user]);
+  }, [product, addProductToHistory, user, firestore]);
 
   if (!product || !image) {
     notFound();
@@ -56,7 +56,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     });
   };
 
-  const handleWishlistToggle = async () => {
+  const handleWishlistToggle = () => {
     if (!user) {
       toast({
         title: 'Please log in',
@@ -66,35 +66,27 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
       });
       return;
     }
+    if (!firestore) return;
 
-    const wishlistRef = doc(db, 'users', user.uid, 'wishlist', product.id);
+    const wishlistRef = doc(firestore, 'users', user.uid, 'wishlist', product.id);
 
-    try {
-      if (isInWishlist) {
-        await deleteDoc(wishlistRef);
-        toast({
-          title: 'Removed from Wishlist',
-          description: `${product.name} has been removed from your wishlist.`,
-        });
-        setIsInWishlist(false);
-      } else {
-        await setDoc(wishlistRef, {
-          productId: product.id,
-          addedAt: serverTimestamp(),
-        });
-        toast({
-          title: 'Added to Wishlist',
-          description: `${product.name} has been added to your wishlist.`,
-        });
-        setIsInWishlist(true);
-      }
-    } catch (error) {
-      console.error("Error toggling wishlist:", error);
+    if (isInWishlist) {
+      deleteDocumentNonBlocking(wishlistRef);
       toast({
-        title: 'Something went wrong',
-        description: 'Could not update your wishlist. Please try again.',
-        variant: 'destructive',
+        title: 'Removed from Wishlist',
+        description: `${product.name} has been removed from your wishlist.`,
       });
+      setIsInWishlist(false);
+    } else {
+      setDocumentNonBlocking(wishlistRef, {
+        productId: product.id,
+        addedAt: serverTimestamp(),
+      }, {});
+      toast({
+        title: 'Added to Wishlist',
+        description: `${product.name} has been added to your wishlist.`,
+      });
+      setIsInWishlist(true);
     }
   };
 

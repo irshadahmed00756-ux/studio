@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { useAuth } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -25,6 +25,7 @@ const otpSchema = z.object({
 
 export default function LoginPage() {
   const router = useRouter();
+  const auth = useAuth();
   const { toast } = useToast();
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [isOtpSent, setIsOtpSent] = useState(false);
@@ -42,8 +43,8 @@ export default function LoginPage() {
 
   const setupRecaptcha = () => {
     // Make sure you have a div with id="recaptcha-container" in your component
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+    if (!(window as any).recaptchaVerifier) {
+      (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
         size: 'invisible',
         callback: (response: any) => {
           // reCAPTCHA solved, allow signInWithPhoneNumber.
@@ -56,7 +57,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       setupRecaptcha();
-      const appVerifier = window.recaptchaVerifier;
+      const appVerifier = (window as any).recaptchaVerifier;
       // Make sure to format the phone number in E.164 format
       const phoneNumber = data.phone.startsWith('+') ? data.phone : `+${data.phone}`;
       const result = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);

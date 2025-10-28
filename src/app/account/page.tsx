@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/use-auth';
+import { useUser, useFirestore, setDocumentNonBlocking } from '@/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -42,7 +41,8 @@ const profileSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
 export default function AccountPage() {
-  const { user, loading } = useAuth();
+  const { user, isUserLoading: loading } = useUser();
+  const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
@@ -59,9 +59,9 @@ export default function AccountPage() {
     if (!loading && !user) {
       router.push('/login');
     }
-    if (user) {
+    if (user && firestore) {
       const fetchProfile = async () => {
-        const docRef = doc(db, 'users', user.uid);
+        const docRef = doc(firestore, 'users', user.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const data = docSnap.data();
@@ -79,26 +79,19 @@ export default function AccountPage() {
       };
       fetchProfile();
     }
-  }, [user, loading, router, form]);
+  }, [user, loading, router, form, firestore]);
 
-  const onSubmit = async (data: ProfileFormValues) => {
-    if (!user) return;
-    try {
-      const docRef = doc(db, 'users', user.uid);
-      await setDoc(docRef, data, { merge: true });
-      toast({
-        title: 'Profile Updated',
-        description: 'Your information has been saved.',
-      });
-      setIsEditing(false);
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      toast({
-        title: 'Error',
-        description: 'Could not update profile.',
-        variant: 'destructive',
-      });
-    }
+  const onSubmit = (data: ProfileFormValues) => {
+    if (!user || !firestore) return;
+
+    const docRef = doc(firestore, 'users', user.uid);
+    setDocumentNonBlocking(docRef, data, { merge: true });
+
+    toast({
+      title: 'Profile Updated',
+      description: 'Your information has been saved.',
+    });
+    setIsEditing(false);
   };
 
   if (loading || !user) {
@@ -356,5 +349,3 @@ export default function AccountPage() {
     </div>
   );
 }
-
-    

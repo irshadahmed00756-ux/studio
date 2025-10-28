@@ -3,9 +3,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/use-auth';
-import { db } from '@/lib/firebase';
-import { collection, getDocs, onSnapshot } from 'firebase/firestore';
+import { useUser, useFirestore } from '@/firebase';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { getProducts, type Product } from '@/lib/products';
 import ProductCard from '@/components/products/ProductCard';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -13,7 +12,8 @@ import { Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function WishlistPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, isUserLoading: authLoading } = useUser();
+  const firestore = useFirestore();
   const router = useRouter();
   const [wishlistProducts, setWishlistProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,9 +25,9 @@ export default function WishlistPage() {
   }, [user, authLoading, router]);
 
   useEffect(() => {
-    if (user) {
+    if (user && firestore) {
       const allProducts = getProducts();
-      const wishlistRef = collection(db, 'users', user.uid, 'wishlist');
+      const wishlistRef = collection(firestore, 'users', user.uid, 'wishlist');
       
       const unsubscribe = onSnapshot(wishlistRef, (snapshot) => {
         const wishlistIds = snapshot.docs.map(doc => doc.id);
@@ -40,7 +40,7 @@ export default function WishlistPage() {
     } else if (!authLoading) {
       setLoading(false);
     }
-  }, [user, authLoading]);
+  }, [user, authLoading, firestore]);
 
   if (authLoading || loading) {
     return (

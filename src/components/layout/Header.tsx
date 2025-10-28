@@ -4,9 +4,8 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { ShoppingCart, User as UserIcon, LogOut, Search, Menu, Package, Heart } from 'lucide-react';
-import { useAuth } from '@/hooks/use-auth';
+import { useUser, useAuth } from '@/firebase';
 import { useCart } from '@/hooks/use-cart';
-import { auth } from '@/lib/firebase';
 import { signOut } from 'firebase/auth';
 import Logo from '@/components/Logo';
 import { Button } from '@/components/ui/button';
@@ -22,7 +21,8 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/s
 import { MobileNav } from './MobileNav';
 
 export default function Header() {
-  const { user, loading } = useAuth();
+  const { user, isUserLoading: loading } = useUser();
+  const auth = useAuth();
   const { state: cartState } = useCart();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -35,7 +35,9 @@ export default function Header() {
 
   const handleSignOut = async () => {
     try {
-      await signOut(auth);
+      if (auth) {
+        await signOut(auth);
+      }
       router.push('/');
     } catch (error) {
       console.error('Error signing out:', error);
