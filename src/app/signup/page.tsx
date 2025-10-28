@@ -1,9 +1,10 @@
+
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { signInWithPhoneNumber, ConfirmationResult, RecaptchaVerifier } from 'firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useAuth } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,180 +16,91 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
-const phoneSchema = z.object({
-  phone: z.string().min(10, { message: 'Please enter a valid phone number.' }),
+const signupSchema = z.object({
+  email: z.string().email({ message: 'Please enter a valid email address.' }),
+  password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
 });
-
-const otpSchema = z.object({
-  otp: z.string().min(6, { message: 'OTP must be 6 digits.' }),
-});
-
-declare global {
-    interface Window {
-        recaptchaVerifier?: RecaptchaVerifier;
-    }
-}
 
 export default function SignupPage() {
   const router = useRouter();
   const auth = useAuth();
   const { toast } = useToast();
-  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
-  const [isOtpSent, setIsOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
-  const otpInputRef = useRef<HTMLInputElement>(null);
 
-  const phoneForm = useForm<z.infer<typeof phoneSchema>>({
-    resolver: zodResolver(phoneSchema),
-    defaultValues: { phone: '' },
+  const form = useForm<z.infer<typeof signupSchema>>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: { email: '', password: '' },
   });
 
-  const otpForm = useForm<z.infer<typeof otpSchema>>({
-    resolver: zodResolver(otpSchema),
-    defaultValues: { otp: '' },
-  });
-  
-  useEffect(() => {
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'invisible',
-      });
-    }
-  }, [auth]);
-
-  useEffect(() => {
-    if (isOtpSent) {
-      otpForm.reset({ otp: '' });
-      if (otpInputRef.current) {
-        otpInputRef.current.value = '';
-      }
-    }
-  }, [isOtpSent, otpForm]);
-  
-  const onSendOtp = async (data: z.infer<typeof phoneSchema>) => {
-    setLoading(true);
-    otpForm.resetField('otp');
-    try {
-      const verifier = window.recaptchaVerifier!;
-      const phoneNumber = data.phone.startsWith('+') ? data.phone : `+${data.phone}`;
-      const result = await signInWithPhoneNumber(auth, phoneNumber, verifier);
-      setConfirmationResult(result);
-      setIsOtpSent(true);
-      toast({
-        title: 'OTP Sent',
-        description: 'An OTP has been sent to your phone number for verification.',
-      });
-    } catch (error: any) {
-      console.error('SMS not sent', error);
-      toast({
-        title: 'Failed to Send OTP',
-        description: error.message || 'Please check the phone number and try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onVerifyOtp = async (data: z.infer<typeof otpSchema>) => {
-    if (!confirmationResult) return;
+  const onSubmit = async (data: z.infer<typeof signupSchema>) => {
     setLoading(true);
     try {
-      await confirmationResult.confirm(data.otp);
-      // This will create a new user or sign in an existing one
+      await createUserWithEmailAndPassword(auth, data.email, data.password);
       router.push('/account');
     } catch (error: any) {
+      console.error('Sign up failed', error);
       toast({
         title: 'Sign Up Failed',
-        description: 'The OTP is incorrect. Please try again.',
+        description: error.message || 'An error occurred during sign up.',
         variant: 'destructive',
       });
     } finally {
       setLoading(false);
     }
-  };
-  
-  const handleBack = () => {
-    otpForm.reset();
-    setIsOtpSent(false);
   };
 
   return (
-    <>
-      <div id="recaptcha-container"></div>
-      <div className="container mx-auto flex min-h-[80vh] items-center justify-center px-4 py-8">
-        <Card className="w-full max-w-sm">
-          <CardHeader className="text-center">
-            <Logo className="mx-auto mb-4" />
-            <CardTitle className="font-headline text-2xl">Create an Account</CardTitle>
-            <CardDescription>
-              {isOtpSent ? 'Verify your number with the OTP' : 'Enter your phone number to get started'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {!isOtpSent ? (
-              <Form {...phoneForm}>
-                <form onSubmit={phoneForm.handleSubmit(onSendOtp)} className="space-y-4">
-                  <FormField
-                    control={phoneForm.control}
-                    name="phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Phone Number</FormLabel>
-                        <FormControl>
-                          <Input placeholder="+1 123 456 7890" {...field} autoComplete="off" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Sending OTP...' : 'Send OTP'}
-                  </Button>
-                </form>
-              </Form>
-            ) : (
-              <Form {...otpForm}>
-                <form onSubmit={otpForm.handleSubmit(onVerifyOtp)} className="space-y-4">
-                  <FormField
-                    control={otpForm.control}
-                    name="otp"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>One-Time Password</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            ref={otpInputRef}
-                            type="tel"
-                            placeholder="123456"
-                            maxLength={6}
-                            inputMode="numeric"
-                            autoComplete="one-time-code"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Verifying...' : 'Create Account'}
-                  </Button>
-                  <Button variant="link" size="sm" onClick={handleBack} className="w-full">
-                      Use a different number
-                    </Button>
-                </form>
-              </Form>
-            )}
-            <p className="mt-4 text-center text-sm text-muted-foreground">
-              Already have an account?{' '}
-              <Link href="/login" className="font-semibold text-primary hover:underline">
-                Log in
-              </Link>
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    </>
+    <div className="container mx-auto flex min-h-[80vh] items-center justify-center px-4 py-8">
+      <Card className="w-full max-w-sm">
+        <CardHeader className="text-center">
+          <Logo className="mx-auto mb-4" />
+          <CardTitle className="font-headline text-2xl">Create an Account</CardTitle>
+          <CardDescription>
+            Enter your email and password to get started
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+               <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input placeholder="name@example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="••••••••" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Creating Account...' : 'Create Account'}
+              </Button>
+            </form>
+          </Form>
+          <p className="mt-4 text-center text-sm text-muted-foreground">
+            Already have an account?{' '}
+            <Link href="/login" className="font-semibold text-primary hover:underline">
+              Log in
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
