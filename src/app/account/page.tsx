@@ -33,6 +33,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const profileSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
+  phone: z.string().optional(),
   dob: z.date().optional(),
   address: z.string().optional(),
   gender: z.enum(['male', 'female', 'other']).optional(),
@@ -51,6 +52,7 @@ export default function AccountPage() {
     resolver: zodResolver(profileSchema),
     defaultValues: {
       name: '',
+      phone: '',
       address: '',
     },
   });
@@ -67,6 +69,7 @@ export default function AccountPage() {
           const data = docSnap.data();
           form.reset({
             name: data.name || user.displayName || '',
+            phone: data.phone || user.phoneNumber || '',
             dob: data.dob?.toDate(),
             address: data.address || '',
             gender: data.gender || undefined,
@@ -74,6 +77,7 @@ export default function AccountPage() {
         } else {
            form.reset({
             name: user.displayName || '',
+            phone: user.phoneNumber || '',
            });
         }
       };
@@ -171,12 +175,19 @@ export default function AccountPage() {
                     </FormItem>
                   }
 
-                   {user.phoneNumber &&
-                    <FormItem>
-                        <FormLabel>Phone Number</FormLabel>
-                        <Input value={user.phoneNumber} disabled />
-                    </FormItem>
-                  }
+                   <FormField
+                      control={form.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Phone Number</FormLabel>
+                          <FormControl>
+                            <Input {...field} disabled={!isEditing} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
                   <FormField
                     control={form.control}
