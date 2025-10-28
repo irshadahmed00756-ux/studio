@@ -43,11 +43,9 @@ export default function SignupPage() {
   });
   
   useEffect(() => {
-    if (isOtpSent) {
-      otpForm.reset({ otp: '' });
-      if (otpInputRef.current) {
+    if (isOtpSent && otpInputRef.current) {
         otpInputRef.current.value = '';
-      }
+        otpForm.reset({ otp: '' });
     }
   }, [isOtpSent, otpForm]);
 
@@ -131,7 +129,7 @@ export default function SignupPage() {
                     <FormItem>
                       <FormLabel>Phone Number</FormLabel>
                       <FormControl>
-                        <Input placeholder="+1 123 456 7890" {...field} autoComplete="tel-national" />
+                        <Input placeholder="+1 123 456 7890" {...field} autoComplete="tel" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -148,7 +146,16 @@ export default function SignupPage() {
                 <FormField
                   control={otpForm.control}
                   name="otp"
-                  render={({ field }) => (
+                  render={({ field }) => {
+                    // eslint-disable-next-line react-hooks/rules-of-hooks
+                    useEffect(() => {
+                      if (otpInputRef.current) {
+                        otpInputRef.current.value = "";
+                      }
+                      field.onChange("");
+                    }, [field]);
+
+                    return (
                     <FormItem>
                       <FormLabel>One-Time Password</FormLabel>
                       <FormControl>
@@ -164,7 +171,7 @@ export default function SignupPage() {
                       </FormControl>
                       <FormMessage />
                     </FormItem>
-                  )}
+                  )}}
                 />
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? 'Verifying...' : 'Create Account'}
