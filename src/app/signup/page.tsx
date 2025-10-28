@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { signInWithPhoneNumber, RecaptchaVerifier, ConfirmationResult, updateProfile } from 'firebase/auth';
-import { useAuth, useFirestore, setDocumentNonBlocking } from '@/firebase';
+import { signInWithPhoneNumber, ConfirmationResult, updateProfile } from 'firebase/auth';
+import { useAuth, useFirestore, setDocumentNonBlocking, useUser } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,7 +19,7 @@ import { Loader2 } from 'lucide-react';
 
 const signupSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
-  email: z.string().email({ message: 'Please enter a valid email address.' }),
+  email: z.string().email({ message: 'Please enter a valid email address.' }).optional().or(z.literal('')),
   phone: z.string().min(10, { message: 'Please enter a valid phone number.' }),
 });
 
@@ -28,6 +28,7 @@ const otpSchema = z.object({
 });
 
 export default function SignupPage() {
+  const { user, isUserLoading } = useUser();
   const router = useRouter();
   const auth = useAuth();
   const firestore = useFirestore();
@@ -36,27 +37,12 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
-  const [recaptchaVerifier, setRecaptchaVerifier] = useState<RecaptchaVerifier | null>(null);
-  
-  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (auth && recaptchaContainerRef.current) {
-      if (recaptchaVerifier) {
-        recaptchaVerifier.clear();
-      }
-      const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
-        size: 'invisible',
-        callback: (response: any) => {},
-        'expired-callback': () => {}
-      });
-      setRecaptchaVerifier(verifier);
-
-      return () => {
-        verifier.clear();
-      };
+    if (!isUserLoading && user) {
+      router.push('/account');
     }
-  }, [auth]);
+  }, [user, isUserLoading, router]);
 
   const signupForm = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
@@ -67,26 +53,18 @@ export default function SignupPage() {
     resolver: zodResolver(otpSchema),
     defaultValues: { otp: '' },
   });
-
-  useEffect(() => {
-    if (isOtpSent) {
-      otpForm.reset({ otp: '' });
-    }
-  }, [isOtpSent, otpForm]);
+  
+  const handleBack = () => {
+    setIsOtpSent(false);
+    otpForm.reset();
+  }
 
   const onSendOtp = async (data: z.infer<typeof signupSchema>) => {
-    if (!recaptchaVerifier) {
-      toast({
-        title: 'reCAPTCHA not ready',
-        description: 'Please wait a moment and try again.',
-        variant: 'destructive',
-      });
-      return;
-    }
     setLoading(true);
     try {
       const phoneNumber = data.phone.startsWith('+') ? data.phone : `+${data.phone}`;
-      const result = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
+      // @ts-ignore
+      const result = await signInWithPhoneNumber(auth, phoneNumber);
       setConfirmationResult(result);
       setIsOtpSent(true);
       toast({
@@ -118,12 +96,16 @@ export default function SignupPage() {
       });
 
       const userDocRef = doc(firestore, 'users', user.uid);
-      setDocumentNonBlocking(userDocRef, {
+      const userData: {name: string, phone: string, createdAt: Date, email?: string} = {
         name: signupData.name,
-        email: signupData.email,
         phone: signupData.phone,
         createdAt: new Date(),
-      }, { merge: true });
+      }
+      if (signupData.email) {
+        userData.email = signupData.email;
+      }
+
+      setDocumentNonBlocking(userDocRef, userData, { merge: true });
 
       router.push('/account');
     } catch (error: any) {
@@ -170,7 +152,7 @@ export default function SignupPage() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>Email (Optional)</FormLabel>
                       <FormControl>
                         <Input placeholder="name@example.com" {...field} />
                       </FormControl>
@@ -212,9 +194,14 @@ export default function SignupPage() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? <Loader2 className="animate-spin" /> : 'Verify & Create Account'}
-                </Button>
+                 <div className="flex gap-2">
+                    <Button variant="outline" onClick={handleBack} className="w-full">
+                      Back
+                    </Button>
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading ? <Loader2 className="animate-spin" /> : 'Verify & Create Account'}
+                    </Button>
+                </div>
               </form>
             </Form>
           )}
@@ -226,7 +213,6 @@ export default function SignupPage() {
           </p>
         </CardContent>
       </Card>
-      <div ref={recaptchaContainerRef}></div>
     </div>
   );
 }

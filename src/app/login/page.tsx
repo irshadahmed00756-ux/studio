@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { signInWithPhoneNumber, RecaptchaVerifier, ConfirmationResult } from 'firebase/auth';
-import { useAuth } from '@/firebase';
+import { signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
+import { useAuth, useUser } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -25,6 +25,7 @@ const otpSchema = z.object({
 });
 
 export default function LoginPage() {
+  const { user, isUserLoading } = useUser();
   const router = useRouter();
   const auth = useAuth();
   const { toast } = useToast();
@@ -32,31 +33,12 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
-  const [recaptchaVerifier, setRecaptchaVerifier] = useState<RecaptchaVerifier | null>(null);
-
-  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
-
+  
   useEffect(() => {
-    if (auth && recaptchaContainerRef.current) {
-      if (recaptchaVerifier) {
-        recaptchaVerifier.clear();
-      }
-      const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
-        size: 'invisible',
-        callback: (response: any) => {
-          // reCAPTCHA solved, allow signInWithPhoneNumber.
-        },
-        'expired-callback': () => {
-          // Response expired. Ask user to solve reCAPTCHA again.
-        }
-      });
-      setRecaptchaVerifier(verifier);
-
-      return () => {
-        verifier.clear();
-      };
+    if (!isUserLoading && user) {
+      router.push('/account');
     }
-  }, [auth]);
+  }, [user, isUserLoading, router]);
 
   const phoneForm = useForm<z.infer<typeof phoneSchema>>({
     resolver: zodResolver(phoneSchema),
@@ -68,25 +50,17 @@ export default function LoginPage() {
     defaultValues: { otp: '' },
   });
 
-   useEffect(() => {
-    if (isOtpSent) {
-      otpForm.reset({ otp: '' });
-    }
-  }, [isOtpSent, otpForm]);
+  const handleBack = () => {
+    setIsOtpSent(false);
+    otpForm.reset();
+  }
 
   const onSendOtp = async (data: z.infer<typeof phoneSchema>) => {
-    if (!recaptchaVerifier) {
-      toast({
-        title: 'reCAPTCHA not ready',
-        description: 'Please wait a moment and try again.',
-        variant: 'destructive',
-      });
-      return;
-    }
     setLoading(true);
     try {
       const phoneNumber = data.phone.startsWith('+') ? data.phone : `+${data.phone}`;
-      const result = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
+      // @ts-ignore
+      const result = await signInWithPhoneNumber(auth, phoneNumber);
       setConfirmationResult(result);
       setIsOtpSent(true);
       toast({
@@ -171,9 +145,14 @@ export default function LoginPage() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? <Loader2 className="animate-spin" /> : 'Verify OTP & Log In'}
-                </Button>
+                 <div className="flex gap-2">
+                    <Button variant="outline" onClick={handleBack} className="w-full">
+                      Back
+                    </Button>
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading ? <Loader2 className="animate-spin" /> : 'Verify OTP & Log In'}
+                    </Button>
+                </div>
               </form>
             </Form>
           )}
@@ -185,7 +164,6 @@ export default function LoginPage() {
           </p>
         </CardContent>
       </Card>
-      <div ref={recaptchaContainerRef}></div>
     </div>
   );
 }
