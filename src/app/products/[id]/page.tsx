@@ -17,7 +17,7 @@ import { db } from '@/lib/firebase';
 import { doc, setDoc, serverTimestamp, getDoc, deleteDoc } from 'firebase/firestore';
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+  const { id } = use(params);
   const product = getProductById(id);
   const image = product ? PlaceHolderImages.find((img) => img.id === product.imageId) : undefined;
   
