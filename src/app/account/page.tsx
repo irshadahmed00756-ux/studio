@@ -18,7 +18,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, CreditCard, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
@@ -30,6 +30,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const profileSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -73,7 +74,6 @@ export default function AccountPage() {
         } else {
            form.reset({
             name: user.displayName || '',
-            email: user.email || '',
            });
         }
       };
@@ -120,9 +120,13 @@ export default function AccountPage() {
   }
 
   const mockOrders = [
-    { id: 'AN12345', date: '2023-10-26', total: 80.00, status: 'Delivered' },
-    { id: 'AN12346', date: '2023-11-15', total: 125.50, status: 'Shipped' },
-    { id: 'AN12347', date: '2023-11-20', total: 45.00, status: 'Processing' },
+    { id: 'AN12345', date: '2023-10-26', total: 80.00, status: 'Delivered', items: 2 },
+    { id: 'AN12346', date: '2023-11-15', total: 125.50, status: 'Shipped', items: 3 },
+    { id: 'AN12347', date: '2023-11-20', total: 45.00, status: 'Processing', items: 1 },
+  ];
+  
+  const mockPaymentMethods = [
+    { id: 'pm_1', type: 'Visa', last4: '4242', expiry: '08/26' },
   ];
 
   return (
@@ -132,8 +136,14 @@ export default function AccountPage() {
         <p className="text-muted-foreground">Welcome back, {form.getValues('name') || user.email}!</p>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-1">
+     <Tabs defaultValue="orders" className="grid gap-8 lg:grid-cols-1">
+        <TabsList className="w-full justify-start lg:w-auto">
+          <TabsTrigger value="details">My Details</TabsTrigger>
+          <TabsTrigger value="orders">Order History</TabsTrigger>
+          <TabsTrigger value="payment">Payment Methods</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="details">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
@@ -147,7 +157,7 @@ export default function AccountPage() {
             <CardContent>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
+                   <FormField
                     control={form.control}
                     name="name"
                     render={({ field }) => (
@@ -270,10 +280,10 @@ export default function AccountPage() {
               </Form>
             </CardContent>
           </Card>
-        </div>
-
-        <div className="lg:col-span-2">
-          <Card id="orders">
+        </TabsContent>
+        
+        <TabsContent value="orders">
+          <Card>
             <CardHeader>
               <CardTitle className="font-headline">Order History</CardTitle>
               <CardDescription>Here's a list of your past orders.</CardDescription>
@@ -284,6 +294,7 @@ export default function AccountPage() {
                   <TableRow>
                     <TableHead>Order ID</TableHead>
                     <TableHead>Date</TableHead>
+                    <TableHead>Items</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Total</TableHead>
                   </TableRow>
@@ -293,6 +304,7 @@ export default function AccountPage() {
                     <TableRow key={order.id}>
                       <TableCell className="font-medium">{order.id}</TableCell>
                       <TableCell>{order.date}</TableCell>
+                      <TableCell>{order.items}</TableCell>
                       <TableCell>
                         <Badge variant={order.status === 'Delivered' ? 'default' : 'secondary'} className="bg-primary/20 text-primary-foreground">
                           {order.status}
@@ -305,8 +317,44 @@ export default function AccountPage() {
               </Table>
             </CardContent>
           </Card>
-        </div>
-      </div>
+        </TabsContent>
+
+        <TabsContent value="payment">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="font-headline">Payment Methods</CardTitle>
+                <CardDescription>Manage your saved payment methods.</CardDescription>
+              </div>
+              <Button>Add New</Button>
+            </CardHeader>
+            <CardContent>
+              {mockPaymentMethods.length > 0 ? (
+                <div className="space-y-4">
+                  {mockPaymentMethods.map((method) => (
+                    <div key={method.id} className="flex items-center justify-between rounded-md border p-4">
+                      <div className="flex items-center gap-4">
+                        <CreditCard className="h-8 w-8 text-muted-foreground" />
+                        <div>
+                          <p className="font-semibold">{method.type} ending in {method.last4}</p>
+                          <p className="text-sm text-muted-foreground">Expires {method.expiry}</p>
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="icon">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted-foreground">You have no saved payment methods.</p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
+
+    
