@@ -136,7 +136,14 @@ export default function SignupPage() {
                     <FormItem>
                       <FormLabel>One-Time Password</FormLabel>
                       <FormControl>
-                        <Input type="text" placeholder="123456" {...field} />
+                        <Input
+                          type="tel"
+                          placeholder="123456"
+                          maxLength={6}
+                          inputMode="numeric"
+                          autoComplete="one-time-code"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
