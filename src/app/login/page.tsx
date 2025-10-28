@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
+import { signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
 import { useAuth } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -51,25 +51,12 @@ export default function LoginPage() {
     }
   }, [isOtpSent, otpForm]);
 
-  const setupRecaptcha = () => {
-    if (!(window as any).recaptchaVerifier) {
-      (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        size: 'invisible',
-        callback: (response: any) => {
-          // reCAPTCHA solved, allow signInWithPhoneNumber.
-        },
-      });
-    }
-  };
-
   const onSendOtp = async (data: z.infer<typeof phoneSchema>) => {
     setLoading(true);
     otpForm.resetField('otp');
     try {
-      setupRecaptcha();
-      const appVerifier = (window as any).recaptchaVerifier;
       const phoneNumber = data.phone.startsWith('+') ? data.phone : `+${data.phone}`;
-      const result = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+      const result = await signInWithPhoneNumber(auth, phoneNumber);
       setConfirmationResult(result);
       setIsOtpSent(true);
       toast({
@@ -112,7 +99,7 @@ export default function LoginPage() {
 
   return (
     <>
-      <div id="recaptcha-container"></div>
+      <div id="recaptcha-container" style={{ display: 'none' }}></div>
       <div className="container mx-auto flex min-h-[80vh] items-center justify-center px-4 py-8">
         <Card className="w-full max-w-sm">
           <CardHeader className="text-center">
@@ -133,7 +120,7 @@ export default function LoginPage() {
                       <FormItem>
                         <FormLabel>Phone Number</FormLabel>
                         <FormControl>
-                          <Input placeholder="+1 123 456 7890" {...field} autoComplete="tel" />
+                          <Input placeholder="+1 123 456 7890" {...field} autoComplete="off" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -188,10 +175,4 @@ export default function LoginPage() {
       </div>
     </>
   );
-}
-
-declare global {
-    interface Window {
-        recaptchaVerifier: RecaptchaVerifier;
-    }
 }
