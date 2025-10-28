@@ -52,7 +52,6 @@ export default function LoginPage() {
   }, [isOtpSent, otpForm]);
 
   const setupRecaptcha = () => {
-    // Make sure you have a div with id="recaptcha-container" in your component
     if (!(window as any).recaptchaVerifier) {
       (window as any).recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
         size: 'invisible',
@@ -65,11 +64,10 @@ export default function LoginPage() {
 
   const onSendOtp = async (data: z.infer<typeof phoneSchema>) => {
     setLoading(true);
-    otpForm.resetField('otp'); // Clear the OTP field before sending a new one
+    otpForm.resetField('otp');
     try {
       setupRecaptcha();
       const appVerifier = (window as any).recaptchaVerifier;
-      // Make sure to format the phone number in E.164 format
       const phoneNumber = data.phone.startsWith('+') ? data.phone : `+${data.phone}`;
       const result = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
       setConfirmationResult(result);
@@ -113,80 +111,82 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="container mx-auto flex min-h-[80vh] items-center justify-center px-4 py-8">
+    <>
       <div id="recaptcha-container"></div>
-      <Card className="w-full max-w-sm">
-        <CardHeader className="text-center">
-          <Logo className="mx-auto mb-4" />
-          <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
-          <CardDescription>
-            {isOtpSent ? 'Enter the OTP sent to your phone' : 'Enter your phone number to log in'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {!isOtpSent ? (
-            <Form {...phoneForm}>
-              <form onSubmit={phoneForm.handleSubmit(onSendOtp)} className="space-y-4">
-                <FormField
-                  control={phoneForm.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone Number</FormLabel>
-                      <FormControl>
-                        <Input placeholder="+1 123 456 7890" {...field} autoComplete="tel" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Sending OTP...' : 'Send OTP'}
-                </Button>
-              </form>
-            </Form>
-          ) : (
-            <Form {...otpForm}>
-              <form onSubmit={otpForm.handleSubmit(onVerifyOtp)} className="space-y-4">
-                <FormField
-                  control={otpForm.control}
-                  name="otp"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>One-Time Password</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          ref={otpInputRef}
-                          type="tel"
-                          placeholder="123456"
-                          maxLength={6}
-                          inputMode="numeric"
-                          autoComplete="one-time-code"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Verifying...' : 'Verify & Log In'}
-                </Button>
-                 <Button variant="link" size="sm" onClick={handleBack} className="w-full">
-                    Back to phone number
+      <div className="container mx-auto flex min-h-[80vh] items-center justify-center px-4 py-8">
+        <Card className="w-full max-w-sm">
+          <CardHeader className="text-center">
+            <Logo className="mx-auto mb-4" />
+            <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
+            <CardDescription>
+              {isOtpSent ? 'Enter the OTP sent to your phone' : 'Enter your phone number to log in'}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {!isOtpSent ? (
+              <Form {...phoneForm}>
+                <form onSubmit={phoneForm.handleSubmit(onSendOtp)} className="space-y-4">
+                  <FormField
+                    control={phoneForm.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone Number</FormLabel>
+                        <FormControl>
+                          <Input placeholder="+1 123 456 7890" {...field} autoComplete="tel" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? 'Sending OTP...' : 'Send OTP'}
                   </Button>
-              </form>
-            </Form>
-          )}
-          <p className="mt-4 text-center text-sm text-muted-foreground">
-            Don't have an account?{' '}
-            <Link href="/signup" className="font-semibold text-primary hover:underline">
-              Sign up
-            </Link>
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+                </form>
+              </Form>
+            ) : (
+              <Form {...otpForm}>
+                <form onSubmit={otpForm.handleSubmit(onVerifyOtp)} className="space-y-4">
+                  <FormField
+                    control={otpForm.control}
+                    name="otp"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>One-Time Password</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            ref={otpInputRef}
+                            type="tel"
+                            placeholder="123456"
+                            maxLength={6}
+                            inputMode="numeric"
+                            autoComplete="one-time-code"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? 'Verifying...' : 'Verify & Log In'}
+                  </Button>
+                   <Button variant="link" size="sm" onClick={handleBack} className="w-full">
+                      Back to phone number
+                    </Button>
+                </form>
+              </Form>
+            )}
+            <p className="mt-4 text-center text-sm text-muted-foreground">
+              Don't have an account?{' '}
+              <Link href="/signup" className="font-semibold text-primary hover:underline">
+                Sign up
+              </Link>
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   );
 }
 
