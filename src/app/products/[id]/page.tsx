@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import Image from 'next/image';
 import { notFound, useRouter } from 'next/navigation';
 import { Plus, CheckCircle, Heart } from 'lucide-react';
@@ -17,7 +17,8 @@ import { db } from '@/lib/firebase';
 import { doc, setDoc, serverTimestamp, getDoc, deleteDoc } from 'firebase/firestore';
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
-  const product = getProductById(params.id);
+  const { id } = params;
+  const product = getProductById(id);
   const image = product ? PlaceHolderImages.find((img) => img.id === product.imageId) : undefined;
   
   const { user } = useAuth();
