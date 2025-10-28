@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser, useFirestore, setDocumentNonBlocking } from '@/firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -126,10 +126,10 @@ export default function AccountPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
         <h1 className="font-headline text-3xl font-bold">My Account</h1>
-        <p className="text-muted-foreground">Welcome back, {form.getValues('name') || user.email}!</p>
+        <p className="text-muted-foreground">Welcome back, {form.getValues('name') || user.displayName || user.email || user.phoneNumber}!</p>
       </div>
 
-     <Tabs defaultValue="orders" className="grid gap-8 lg:grid-cols-1">
+     <Tabs defaultValue="details" className="grid gap-8 lg:grid-cols-1">
         <TabsList className="w-full justify-start lg:w-auto">
           <TabsTrigger value="details">My Details</TabsTrigger>
           <TabsTrigger value="orders">Order History</TabsTrigger>
@@ -164,10 +164,19 @@ export default function AccountPage() {
                     )}
                   />
                   
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <Input value={user.email || ''} disabled />
-                  </FormItem>
+                  {user.email &&
+                    <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <Input value={user.email} disabled />
+                    </FormItem>
+                  }
+
+                   {user.phoneNumber &&
+                    <FormItem>
+                        <FormLabel>Phone Number</FormLabel>
+                        <Input value={user.phoneNumber} disabled />
+                    </FormItem>
+                  }
 
                   <FormField
                     control={form.control}
