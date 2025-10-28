@@ -6,6 +6,8 @@ import Footer from '@/components/layout/Footer';
 import { Toaster } from '@/components/ui/toaster';
 import LiveChatWidget from '@/components/LiveChatWidget';
 import './globals.css';
+import { SpeedInsights } from '@vercel/speed-insights/next';
+import { Analytics } from '@vercel/analytics/react';
 
 export const metadata: Metadata = {
   title: 'Aesthetic Nasra',
@@ -36,6 +38,8 @@ export default function RootLayout({
             <Toaster />
           </CartProvider>
         </AuthProvider>
+        <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
