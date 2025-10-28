@@ -43,9 +43,11 @@ export default function LoginPage() {
   });
   
   useEffect(() => {
-    if (isOtpSent && otpInputRef.current) {
-      otpInputRef.current.value = '';
+    if (isOtpSent) {
       otpForm.reset({ otp: '' });
+      if (otpInputRef.current) {
+        otpInputRef.current.value = '';
+      }
     }
   }, [isOtpSent, otpForm]);
 
@@ -149,16 +151,7 @@ export default function LoginPage() {
                 <FormField
                   control={otpForm.control}
                   name="otp"
-                  render={({ field }) => {
-                    // eslint-disable-next-line react-hooks/rules-of-hooks
-                    useEffect(() => {
-                      if (otpInputRef.current) {
-                        otpInputRef.current.value = "";
-                      }
-                      field.onChange("");
-                    }, [field]);
-                    
-                    return (
+                  render={({ field }) => (
                     <FormItem>
                       <FormLabel>One-Time Password</FormLabel>
                       <FormControl>
@@ -174,7 +167,7 @@ export default function LoginPage() {
                       </FormControl>
                       <FormMessage />
                     </FormItem>
-                  )}}
+                  )}
                 />
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? 'Verifying...' : 'Verify & Log In'}

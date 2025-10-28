@@ -43,9 +43,11 @@ export default function SignupPage() {
   });
   
   useEffect(() => {
-    if (isOtpSent && otpInputRef.current) {
+    if (isOtpSent) {
+      otpForm.reset({ otp: '' });
+      if (otpInputRef.current) {
         otpInputRef.current.value = '';
-        otpForm.reset({ otp: '' });
+      }
     }
   }, [isOtpSent, otpForm]);
 
@@ -146,16 +148,7 @@ export default function SignupPage() {
                 <FormField
                   control={otpForm.control}
                   name="otp"
-                  render={({ field }) => {
-                    // eslint-disable-next-line react-hooks/rules-of-hooks
-                    useEffect(() => {
-                      if (otpInputRef.current) {
-                        otpInputRef.current.value = "";
-                      }
-                      field.onChange("");
-                    }, [field]);
-
-                    return (
+                  render={({ field }) => (
                     <FormItem>
                       <FormLabel>One-Time Password</FormLabel>
                       <FormControl>
@@ -171,7 +164,7 @@ export default function SignupPage() {
                       </FormControl>
                       <FormMessage />
                     </FormItem>
-                  )}}
+                  )}
                 />
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? 'Verifying...' : 'Create Account'}
