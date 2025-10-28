@@ -1,3 +1,154 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "haldi-platter-1",
+      "description": "Elegant Haldi Platter",
+      "imageUrl": "https://images.unsplash.com/photo-1705948730553-3ea0c89ae6fb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8aGFsZGklMjBwbGF0dGVyfGVufDB8fHx8MTc2MTY0OTYwMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "haldi platter"
+    },
+    {
+      "id": "haldi-platter-2",
+      "description": "Traditional Haldi Platter",
+      "imageUrl": "https://images.unsplash.com/photo-1625038032515-308ab14d10b9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx3ZWRkaW5nJTIwZGVjb3J8ZW58MHx8fHwxNzYxNjIwMjU3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "wedding decor"
+    },
+    {
+      "id": "haldi-platter-3",
+      "description": "Floral Haldi Platter",
+      "imageUrl": "https://images.unsplash.com/photo-1725561167514-a9c6726b0930?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxmbG9yYWwlMjBwbGF0dGVyfGVufDB8fHx8MTc2MTY0OTYwMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "floral platter"
+    },
+    {
+      "id": "haldi-platter-4",
+      "description": "Custom Haldi Platter",
+      "imageUrl": "https://images.unsplash.com/photo-1750647880913-d4db3df81626?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxkZWNvcmF0ZWQlMjBwbGF0dGVyfGVufDB8fHx8MTc2MTY0OTYwMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "decorated platter"
+    },
+    {
+      "id": "mehndi-platter-1",
+      "description": "Vibrant Mehndi Platter",
+      "imageUrl": "https://picsum.photos/seed/mp1/600/400",
+      "imageHint": "mehndi platter"
+    },
+    {
+      "id": "mehndi-platter-2",
+      "description": "Peacock Mehndi Platter",
+      "imageUrl": "https://images.unsplash.com/photo-1674532077682-0e1770d5631f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxwZWFjb2NrJTIwZGVjb3J8ZW58MHx8fHwxNzYxNjQ5NjAyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "peacock decor"
+    },
+    {
+      "id": "mehndi-platter-3",
+      "description": "Artisan Mehndi Platter",
+      "imageUrl": "https://images.unsplash.com/photo-1695606392879-7b1cc3680212?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxhcnRpc2FuJTIwcGxhdHRlcnxlbnwwfHx8fDE3NjE2NDk2MDJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "artisan platter"
+    },
+    {
+      "id": "mehndi-platter-4",
+      "description": "Mirror Work Mehndi Platter",
+      "imageUrl": "https://images.unsplash.com/photo-1738138180990-6cd1db53c626?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxtaXJyb3IlMjB3b3JrfGVufDB8fHx8MTc2MTY0OTYwMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "mirror work"
+    },
+    {
+      "id": "engagement-pen-1",
+      "description": "Feather Engagement Pen",
+      "imageUrl": "https://images.unsplash.com/photo-1600531597946-f9b1d7b0f486?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxkZWNvcmF0ZWQlMjBwZW58ZW58MHx8fHwxNzYxNjQ5NjAyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "decorated pen"
+    },
+    {
+      "id": "engagement-pen-2",
+      "description": "Crystal Engagement Pen",
+      "imageUrl": "https://images.unsplash.com/photo-1710180552259-2153ce9c0227?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjcnlzdGFsJTIwcGVufGVufDB8fHx8MTc2MTY0OTYwMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "crystal pen"
+    },
+    {
+      "id": "ring-platter-1",
+      "description": "Luxurious Engagement Ring Platter",
+      "imageUrl": "https://images.unsplash.com/photo-1737662374763-9d852121c8c6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxyaW5nJTIwcGxhdHRlcnxlbnwwfHx8fDE3NjE2NDk2MDJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "ring platter"
+    },
+    {
+      "id": "ring-platter-2",
+      "description": "Velvet Ring Platter",
+      "imageUrl": "https://images.unsplash.com/photo-1698376620953-3a9afd8ca46a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx2ZWx2ZXQlMjBib3h8ZW58MHx8fHwxNzYxNjQ5NjAyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "velvet box"
+    },
+    {
+      "id": "ring-platter-3",
+      "description": "Personalized Ring Platter",
+      "imageUrl": "https://images.unsplash.com/photo-1683150372139-31611c320d73?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxlbmdyYXZlZCUyMHBsYXR0ZXJ8ZW58MHx8fHwxNzYxNjQ5NjAyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "engraved platter"
+    },
+    {
+      "id": "hamper-1",
+      "description": "Wedding Gift Hamper",
+      "imageUrl": "https://images.unsplash.com/photo-1753918525893-c8f2098abd0a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxnaWZ0JTIwaGFtcGVyfGVufDB8fHx8MTc2MTU0OTEzN3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "gift hamper"
+    },
+    {
+      "id": "hamper-2",
+      "description": "Bridesmaid Hamper",
+      "imageUrl": "https://images.unsplash.com/photo-1557492993-01989e8ed6d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxnaWZ0JTIwYmFza2V0fGVufDB8fHx8MTc2MTYzOTEyN3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "gift basket"
+    },
+    {
+      "id": "hamper-3",
+      "description": "Groom's Gift Hamper",
+      "imageUrl": "https://images.unsplash.com/photo-1679759023174-544457694687?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8bWVuJTI3cyUyMGdpZnR8ZW58MHx8fHwxNzYxNjQ5NjAyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "men's gift"
+    },
+    {
+      "id": "hamper-4",
+      "description": "Organic Spa Hamper",
+      "imageUrl": "https://images.unsplash.com/photo-1595127487719-64575fb6e825?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxzcGElMjBiYXNrZXR8ZW58MHx8fHwxNzYxNjQ5NjAyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "spa basket"
+    },
+    {
+      "id": "nikah-pen-1",
+      "description": "Ornate Nikah Pen",
+      "imageUrl": "https://images.unsplash.com/photo-1625396056350-91dd4f83fc5e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxmb3VudGFpbiUyMHBlbnxlbnwwfHx8fDE3NjE1Njc1Mjl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fountain pen"
+    },
+    {
+      "id": "nikah-pen-2",
+      "description": "Golden Nikah Pen",
+      "imageUrl": "https://images.unsplash.com/photo-1518674660708-0e2c0473e68e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8Z29sZGVuJTIwcGVufGVufDB8fHx8MTc2MTY0OTYwMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "golden pen"
+    },
+    {
+      "id": "nikah-pen-3",
+      "description": "Pearl Nikah Pen",
+      "imageUrl": "https://images.unsplash.com/photo-1744215328122-467978ec3469?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxwZWFybCUyMHBlbnxlbnwwfHx8fDE3NjE2NDk2MDJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "pearl pen"
+    },
+    {
+      "id": "return-gift-1",
+      "description": "Potli Bag Return Gifts",
+      "imageUrl": "https://images.unsplash.com/photo-1650373773073-a8920f3edf34?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwb3RsaSUyMGJhZ3xlbnwwfHx8fDE3NjE2NDk2MDJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "potli bag"
+    },
+    {
+      "id": "return-gift-2",
+      "description": "Handmade Soap Return Gifts",
+      "imageUrl": "https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxoYW5kbWFkZSUyMHNvYXB8ZW58MHx8fHwxNzYxNjE3MDg4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "handmade soap"
+    },
+    {
+      "id": "decor-item-1",
+      "description": "Hand-painted Diya Set",
+      "imageUrl": "https://images.unsplash.com/photo-1722057401117-dfab0b38e752?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxkaXlhJTIwbGFtcHxlbnwwfHx8fDE3NjE2NDk2MDJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "diya lamp"
+    },
+    {
+      "id": "decor-item-2",
+      "description": "T-light Candle Holders",
+      "imageUrl": "https://images.unsplash.com/photo-1623483317263-dacf2d332757?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxjYW5kbGUlMjBob2xkZXJ8ZW58MHx8fHwxNzYxNjQ5NjAyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "candle holder"
+    },
+    {
+      "id": "decor-item-3",
+      "description": "Floral Wall Hanging",
+      "imageUrl": "https://images.unsplash.com/photo-1647296020397-8ef9f36afe99?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZmxvcmFsJTIwZGVjb3J8ZW58MHx8fHwxNzYxNjQ5NjAyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "floral decor"
+    }
+  ]
 }
