@@ -96,6 +96,11 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+  
+  const handleBack = () => {
+    otpForm.reset();
+    setIsOtpSent(false);
+  };
 
   return (
     <div className="container mx-auto flex min-h-[80vh] items-center justify-center px-4 py-8">
@@ -156,7 +161,7 @@ export default function LoginPage() {
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? 'Verifying...' : 'Verify & Log In'}
                 </Button>
-                 <Button variant="link" size="sm" onClick={() => setIsOtpSent(false)} className="w-full">
+                 <Button variant="link" size="sm" onClick={handleBack} className="w-full">
                     Back to phone number
                   </Button>
               </form>

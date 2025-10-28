@@ -83,7 +83,7 @@ export default function SignupPage() {
       await confirmationResult.confirm(data.otp);
       // This will create a new user or sign in an existing one
       router.push('/account');
-    } catch (error: any) => {
+    } catch (error: any) {
       toast({
         title: 'Sign Up Failed',
         description: 'The OTP is incorrect. Please try again.',
@@ -92,6 +92,11 @@ export default function SignupPage() {
     } finally {
       setLoading(false);
     }
+  };
+  
+  const handleBack = () => {
+    otpForm.reset();
+    setIsOtpSent(false);
   };
 
   return (
@@ -152,7 +157,7 @@ export default function SignupPage() {
                 />
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? 'Verifying...' : 'Create Account'}
-                </Button>                 <Button variant="link" size="sm" onClick={() => setIsOtpSent(false)} className="w-full">
+                </Button>                 <Button variant="link" size="sm" onClick={handleBack} className="w-full">
                     Use a different number
                   </Button>
               </form>
