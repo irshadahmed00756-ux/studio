@@ -52,6 +52,7 @@ export default function SignupPage() {
 
   const onSendOtp = async (data: z.infer<typeof phoneSchema>) => {
     setLoading(true);
+    otpForm.resetField('otp'); // Clear the OTP field before sending a new one
     try {
       setupRecaptcha();
       const appVerifier = (window as any).recaptchaVerifier;
@@ -82,7 +83,7 @@ export default function SignupPage() {
       await confirmationResult.confirm(data.otp);
       // This will create a new user or sign in an existing one
       router.push('/account');
-    } catch (error: any) {
+    } catch (error: any) => {
       toast({
         title: 'Sign Up Failed',
         description: 'The OTP is incorrect. Please try again.',
@@ -115,7 +116,7 @@ export default function SignupPage() {
                     <FormItem>
                       <FormLabel>Phone Number</FormLabel>
                       <FormControl>
-                        <Input placeholder="+1 123 456 7890" {...field} />
+                        <Input placeholder="+1 123 456 7890" {...field} autoComplete="off" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
