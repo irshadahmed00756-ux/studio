@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { signInWithPhoneNumber, ConfirmationResult, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { useAuth, useFirestore, setDocumentNonBlocking, useUser } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
@@ -19,12 +19,8 @@ import { Loader2 } from 'lucide-react';
 
 const signupSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
-  email: z.string().email({ message: 'Please enter a valid email address.' }).optional().or(z.literal('')),
-  phone: z.string().min(10, { message: 'Please enter a valid phone number.' }),
-});
-
-const otpSchema = z.object({
-  otp: z.string().min(6, { message: 'OTP must be 6 digits.' }),
+  email: z.string().email({ message: 'Please enter a valid email address.' }),
+  password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
 });
 
 export default function SignupPage() {
@@ -33,10 +29,7 @@ export default function SignupPage() {
   const auth = useAuth();
   const firestore = useFirestore();
   const { toast } = useToast();
-  
   const [loading, setLoading] = useState(false);
-  const [isOtpSent, setIsOtpSent] = useState(false);
-  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
   useEffect(() => {
     if (!isUserLoading && user) {
@@ -44,72 +37,46 @@ export default function SignupPage() {
     }
   }, [user, isUserLoading, router]);
 
-  const signupForm = useForm<z.infer<typeof signupSchema>>({
+  const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
-    defaultValues: { name: '', email: '', phone: '' },
+    defaultValues: { name: '', email: '', password: '' },
   });
 
-  const otpForm = useForm<z.infer<typeof otpSchema>>({
-    resolver: zodResolver(otpSchema),
-    defaultValues: { otp: '' },
-  });
-  
-  const handleBack = () => {
-    setIsOtpSent(false);
-    otpForm.reset();
-  }
-
-  const onSendOtp = async (data: z.infer<typeof signupSchema>) => {
-    setLoading(true);
-    try {
-      const phoneNumber = data.phone.startsWith('+') ? data.phone : `+${data.phone}`;
-      // @ts-ignore
-      const result = await signInWithPhoneNumber(auth, phoneNumber);
-      setConfirmationResult(result);
-      setIsOtpSent(true);
+  const onSubmit = async (data: z.infer<typeof signupSchema>) => {
+    if (!auth || !firestore) {
       toast({
-        title: 'OTP Sent',
-        description: 'We have sent a one-time password to your phone number.',
-      });
-    } catch (error: any) {
-      console.error('OTP send failed', error);
-      toast({
-        title: 'Failed to Send OTP',
-        description: error.message || 'Please check the phone number and try again.',
+        title: 'Sign Up Failed',
+        description: 'Authentication service is not ready. Please try again later.',
         variant: 'destructive',
       });
-    } finally {
-      setLoading(false);
+      return;
     }
-  };
-
-  const onVerifyOtp = async (data: z.infer<typeof otpSchema>) => {
-    if (!confirmationResult || !firestore) return;
     setLoading(true);
     try {
-      const userCredential = await confirmationResult.confirm(data.otp);
-      const user = userCredential.user;
+      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
+      const newUser = userCredential.user;
       
-      const signupData = signupForm.getValues();
-      await updateProfile(user, {
-        displayName: signupData.name,
+      await updateProfile(newUser, {
+        displayName: data.name,
       });
 
-      const userDocRef = doc(firestore, 'users', user.uid);
-      const userData: {name: string, phone: string, createdAt: Date, email?: string} = {
-        name: signupData.name,
-        phone: signupData.phone,
+      const userDocRef = doc(firestore, 'users', newUser.uid);
+      const userData = {
+        name: data.name,
+        email: data.email,
         createdAt: new Date(),
-      }
-      if (signupData.email) {
-        userData.email = signupData.email;
-      }
+      };
 
       setDocumentNonBlocking(userDocRef, userData, { merge: true });
 
+      toast({
+        title: 'Account Created!',
+        description: 'You have been successfully signed up.',
+      });
       router.push('/account');
+
     } catch (error: any) {
-      console.error('OTP verification/signup failed', error);
+      console.error('Sign up failed', error);
       toast({
         title: 'Sign Up Failed',
         description: error.message || 'An error occurred during sign up.',
@@ -127,84 +94,56 @@ export default function SignupPage() {
           <Logo className="mx-auto mb-4" />
           <CardTitle className="font-headline text-2xl">Create an Account</CardTitle>
           <CardDescription>
-            {isOtpSent ? 'Enter the OTP to verify your phone' : 'Enter your details to get started'}
+            Enter your details to get started
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {!isOtpSent ? (
-            <Form {...signupForm}>
-              <form onSubmit={signupForm.handleSubmit(onSendOtp)} className="space-y-4">
-                <FormField
-                  control={signupForm.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Full Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Aesthetic Nasra" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                 <FormField
-                  control={signupForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email (Optional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="name@example.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={signupForm.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phone Number</FormLabel>
-                      <FormControl>
-                        <Input placeholder="+91 98765 43210" {...field} autoComplete="tel" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? <Loader2 className="animate-spin" /> : 'Send OTP'}
-                </Button>
-              </form>
-            </Form>
-          ) : (
-            <Form {...otpForm}>
-              <form onSubmit={otpForm.handleSubmit(onVerifyOtp)} className="space-y-4">
-                <FormField
-                  control={otpForm.control}
-                  name="otp"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>One-Time Password</FormLabel>
-                      <FormControl>
-                        <Input placeholder="123456" {...field} autoComplete="one-time-code" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                 <div className="flex gap-2">
-                    <Button variant="outline" onClick={handleBack} className="w-full">
-                      Back
-                    </Button>
-                    <Button type="submit" className="w-full" disabled={loading}>
-                      {loading ? <Loader2 className="animate-spin" /> : 'Verify & Create Account'}
-                    </Button>
-                </div>
-              </form>
-            </Form>
-          )}
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Full Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Aesthetic Nasra" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="name@example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="••••••••" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? <Loader2 className="animate-spin" /> : 'Create Account'}
+              </Button>
+            </form>
+          </Form>
           <p className="mt-4 text-center text-sm text-muted-foreground">
             Already have an account?{' '}
             <Link href="/login" className="font-semibold text-primary hover:underline">
