@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { MobileNav } from './MobileNav';
 
 export default function Header() {
@@ -77,6 +77,7 @@ export default function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+              <SheetTitle className="sr-only">Menu</SheetTitle>
               <nav className="flex flex-col gap-4">
                 <Logo />
                 <MobileNav links={navLinks} />

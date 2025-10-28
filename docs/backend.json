@@ -1,0 +1,41 @@
+{
+  "entities": {
+    "userProfile": {
+      "title": "User Profile",
+      "description": "Represents a user's profile information.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The user's full name."
+        },
+        "dob": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The user's date of birth."
+        },
+        "address": {
+          "type": "string",
+          "description": "The user's shipping address."
+        },
+        "gender": {
+          "type": "string",
+          "description": "The user's gender.",
+          "enum": ["male", "female", "other"]
+        }
+      },
+      "required": ["name"]
+    }
+  },
+  "auth": {
+    "providers": ["email-password"]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/userProfile"
+      },
+      "description": "Stores user profile information."
+    }
+  }
+}
