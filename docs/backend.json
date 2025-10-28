@@ -45,7 +45,7 @@
     }
   },
   "auth": {
-    "providers": ["email-password"]
+    "providers": ["phone"]
   },
   "firestore": {
     "/users/{userId}": {
