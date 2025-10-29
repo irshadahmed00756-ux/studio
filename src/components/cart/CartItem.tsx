@@ -51,7 +51,7 @@ export default function CartItem({ item }: CartItemProps) {
           <Link href={`/products/${item.product.id}`} className="font-headline font-semibold hover:underline">
             {item.product.name}
           </Link>
-          <p className="text-sm text-muted-foreground">${item.product.price.toFixed(2)}</p>
+          <p className="text-sm text-muted-foreground">₹{item.product.price.toFixed(2)}</p>
           <div className="mt-2 flex items-center">
             <label htmlFor={`quantity-${item.product.id}`} className="sr-only">
               Quantity
@@ -67,7 +67,7 @@ export default function CartItem({ item }: CartItemProps) {
           </div>
         </div>
         <div className="flex flex-col items-end gap-2">
-          <p className="font-semibold">${(item.product.price * item.quantity).toFixed(2)}</p>
+          <p className="font-semibold">₹{(item.product.price * item.quantity).toFixed(2)}</p>
           <Button variant="ghost" size="icon" onClick={handleRemoveItem}>
             <Trash2 className="h-4 w-4 text-muted-foreground" />
             <span className="sr-only">Remove item</span>

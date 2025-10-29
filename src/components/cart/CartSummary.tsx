@@ -20,7 +20,7 @@ export default function CartSummary() {
         <div className="space-y-2">
           <div className="flex justify-between">
             <span>Subtotal</span>
-            <span>${subtotal.toFixed(2)}</span>
+            <span>₹{subtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-sm text-muted-foreground">
             <span>Shipping</span>
@@ -30,7 +30,7 @@ export default function CartSummary() {
         <Separator className="my-4" />
         <div className="flex justify-between font-bold">
           <span>Total</span>
-          <span>${subtotal.toFixed(2)}</span>
+          <span>₹{subtotal.toFixed(2)}</span>
         </div>
       </CardContent>
       <CardFooter>
