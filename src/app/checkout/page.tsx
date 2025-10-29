@@ -25,6 +25,24 @@ const checkoutSchema = z.object({
   paymentMethod: z.enum(['cod', 'upi', 'card'], {
     required_error: "You need to select a payment method.",
   }),
+  cardNumber: z.string().optional(),
+  expiryDate: z.string().optional(),
+  cvc: z.string().optional(),
+}).refine((data) => {
+  if (data.paymentMethod === 'card') {
+    return (
+      !!data.cardNumber &&
+      /^\d{16}$/.test(data.cardNumber) &&
+      !!data.expiryDate &&
+      /^(0[1-9]|1[0-2])\/\d{2}$/.test(data.expiryDate) &&
+      !!data.cvc &&
+      /^\d{3,4}$/.test(data.cvc)
+    );
+  }
+  return true;
+}, {
+  message: "Please enter valid card details.",
+  path: ['cardNumber'], // You can associate the error with a specific field if you want
 });
 
 export default function CheckoutPage() {
@@ -45,6 +63,7 @@ export default function CheckoutPage() {
     },
   });
 
+  const paymentMethod = form.watch('paymentMethod');
   const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 
   const onSubmit = (data: z.infer<typeof checkoutSchema>) => {
@@ -150,6 +169,33 @@ export default function CheckoutPage() {
                       </FormItem>
                     )}
                   />
+                  {paymentMethod === 'card' && (
+                    <div className="mt-6 space-y-4 rounded-md border bg-muted/50 p-4">
+                       <FormField control={form.control} name="cardNumber" render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Card Number</FormLabel>
+                            <FormControl><Input placeholder="0000 0000 0000 0000" {...field} /></FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )} />
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField control={form.control} name="expiryDate" render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Expiry Date</FormLabel>
+                            <FormControl><Input placeholder="MM/YY" {...field} /></FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )} />
+                        <FormField control={form.control} name="cvc" render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>CVC</FormLabel>
+                            <FormControl><Input placeholder="123" {...field} /></FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )} />
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
