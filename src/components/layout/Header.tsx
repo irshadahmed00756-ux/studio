@@ -1,15 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
-import { ShoppingCart, User as UserIcon, LogOut, Search, Menu, Package, Heart } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { ShoppingCart, User as UserIcon, LogOut, Search as SearchIcon, Menu, Package, Heart } from 'lucide-react';
 import { useUser, useAuth } from '@/firebase';
 import { useCart } from '@/hooks/use-cart';
 import { signOut } from 'firebase/auth';
 import Logo from '@/components/Logo';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,14 +18,14 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { MobileNav } from './MobileNav';
+import Search from './Search';
+import { Skeleton } from '../ui/skeleton';
 
 export default function Header() {
   const { user, isUserLoading: loading } = useUser();
   const auth = useAuth();
   const { state: cartState } = useCart();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState(searchParams.get('query') || '');
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -41,15 +40,6 @@ export default function Header() {
       router.push('/');
     } catch (error) {
       console.error('Error signing out:', error);
-    }
-  };
-
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/products?query=${encodeURIComponent(searchQuery.trim())}`);
-    } else {
-      router.push('/products');
     }
   };
 
@@ -104,16 +94,9 @@ export default function Header() {
         
         <div className="flex flex-1 items-center justify-end gap-2 sm:gap-4">
           <div className="w-full max-w-xs">
-            <form onSubmit={handleSearch} className="relative">
-              <Input
-                type="search"
-                placeholder="Search products..."
-                className="h-9 w-full rounded-full pl-8"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            </form>
+            <Suspense fallback={<Skeleton className="h-9 w-full rounded-full" />}>
+              <Search />
+            </Suspense>
           </div>
           
           <Button asChild variant="ghost" size="icon">
