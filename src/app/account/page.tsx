@@ -17,7 +17,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { CalendarIcon, CreditCard, Trash2 } from 'lucide-react';
+import { CalendarIcon, CreditCard, Trash2, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
@@ -119,7 +119,7 @@ export default function AccountPage() {
   const mockOrders = [
     { id: 'AN12345', date: '2023-10-26', total: 80.00, status: 'Delivered', items: 2 },
     { id: 'AN12346', date: '2023-11-15', total: 125.50, status: 'Shipped', items: 3 },
-    { id: 'AN12347', date: '2023-11-20', total: 45.00, status: 'Processing', items: 1 },
+    { id: 'AN12347', date: '2023-11-20', total: 'Processing', status: 'Processing', items: 1 },
   ];
   
   const mockPaymentMethods = [
@@ -133,7 +133,7 @@ export default function AccountPage() {
         <p className="text-muted-foreground">Welcome back, {form.getValues('name') || user.displayName || user.email || user.phoneNumber}!</p>
       </div>
 
-     <Tabs defaultValue="details" className="grid gap-8 lg:grid-cols-1">
+     <Tabs defaultValue="details" className="w-full">
         <TabsList className="w-full justify-start lg:w-auto">
           <TabsTrigger value="details">My Details</TabsTrigger>
           <TabsTrigger value="orders">Order History</TabsTrigger>
@@ -307,23 +307,28 @@ export default function AccountPage() {
                   <TableRow>
                     <TableHead>Order ID</TableHead>
                     <TableHead>Date</TableHead>
-                    <TableHead>Items</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Total</TableHead>
+                    <TableHead className="w-[100px]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {mockOrders.map((order) => (
-                    <TableRow key={order.id}>
+                    <TableRow key={order.id} className="cursor-pointer" onClick={() => router.push(`/account/orders/${order.id}`)}>
                       <TableCell className="font-medium">{order.id}</TableCell>
                       <TableCell>{order.date}</TableCell>
-                      <TableCell>{order.items}</TableCell>
                       <TableCell>
                         <Badge variant={order.status === 'Delivered' ? 'default' : 'secondary'} className="bg-primary/20 text-primary-foreground">
                           {order.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right">₹{order.total.toFixed(2)}</TableCell>
+                      <TableCell className="text-right">₹{Number(order.total).toFixed(2)}</TableCell>
+                      <TableCell className="text-right">
+                         <Button variant="outline" size="sm">
+                          <Eye className="mr-2 h-4 w-4" />
+                          Details
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
