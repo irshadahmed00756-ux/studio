@@ -54,9 +54,7 @@ export default function LoginPage() {
       console.error('Login failed', error);
       let description = 'An unexpected error occurred. Please try again.';
       if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-        description = 'Invalid email or password. Please try again or sign up.';
-      } else if (error.message) {
-        description = error.message;
+        description = 'Invalid email or password. Please try again.';
       }
       toast({
         title: 'Login Failed',
