@@ -20,6 +20,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/s
 import { MobileNav } from './MobileNav';
 import Search from './Search';
 import { Skeleton } from '../ui/skeleton';
+import { ThemeToggle } from '../ThemeToggle';
 
 export default function Header() {
   const { user, isUserLoading: loading } = useUser();
@@ -99,6 +100,8 @@ export default function Header() {
             </Suspense>
           </div>
           
+          <ThemeToggle />
+
           <Button asChild variant="ghost" size="icon">
             <Link href="/wishlist">
               <Heart className="h-5 w-5" />
