@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useEffect } from 'react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { CreditCard, Landmark, Truck } from 'lucide-react';
+import { Label } from '@/components/ui/label';
 
 const checkoutSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
